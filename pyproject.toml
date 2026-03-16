@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vlydev-cs2-masked-inspect"
+version = "1.0.0"
+description = "Encode and decode CS2 masked inspect links"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["cs2", "csgo", "inspect", "protobuf", "steam"]
+authors = [
+    { name = "VlyDev", email = "vladdnepr1989@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cs2_inspect*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
