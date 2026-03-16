@@ -57,12 +57,15 @@ def _extract_hex(hex_or_url: str) -> str:
     if m and re.search(r'[A-Fa-f]', m.group(1)):
         return m.group(1)
 
-    # Classic/market URL: A<hex> preceded by %20, space, or + (A is a prefix marker, not hex)
+    # Classic/market URL: A<hex> preceded by %20, space, or + (A is a prefix marker, not hex).
+    # If stripping A yields odd-length hex, A is actually the first byte of the payload —
+    # fall through to the pure-masked check below which captures it with A included.
     m = _INSPECT_URL_RE.search(stripped)
-    if m:
+    if m and len(m.group(1)) % 2 == 0:
         return m.group(1)
 
-    # Pure masked format: csgo_econ_action_preview%20<hexblob> (no S/A/M prefix)
+    # Pure masked format: csgo_econ_action_preview%20<hexblob> (no S/A/M prefix).
+    # Also handles payloads whose first hex character happens to be A.
     mm = re.search(r'csgo_econ_action_preview(?:%20|\s|\+)([0-9A-Fa-f]{10,})$', stripped, re.IGNORECASE)
     if mm:
         return mm.group(1)
