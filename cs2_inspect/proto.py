@@ -83,7 +83,11 @@ class ProtoReader:
     def read_all_fields(self) -> list[tuple[int, int, Any]]:
         """Read all (field_number, wire_type, value) tuples until EOF."""
         fields: list[tuple[int, int, Any]] = []
+        field_count = 0
         while self.remaining() > 0:
+            field_count += 1
+            if field_count > 100:
+                raise ValueError("Protobuf field count exceeds limit of 100")
             field_num, wire_type = self.read_tag()
             if wire_type == WIRE_VARINT:
                 value = self.read_varint()

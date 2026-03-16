@@ -106,6 +106,14 @@ def serialize(data: ItemPreviewData) -> str:
     Returns:
         Uppercase hex string, e.g. "00183C20B803..."
     """
+    if data.paintwear < 0.0 or data.paintwear > 1.0:
+        raise ValueError(
+            f"paintwear must be in [0.0, 1.0], got {data.paintwear}"
+        )
+    if data.customname is not None and len(data.customname) > 100:
+        raise ValueError(
+            f"customname must not exceed 100 characters, got {len(data.customname)}"
+        )
     proto_bytes = encode_item(data)
     buffer = b"\x00" + proto_bytes
     checksum = _crc32_checksum(buffer, len(proto_bytes))
@@ -125,6 +133,10 @@ def deserialize(hex_or_url: str) -> ItemPreviewData:
     (where the first byte is the XOR key applied to all subsequent bytes).
     """
     hex_str = _extract_hex(hex_or_url)
+    if len(hex_str) > 4096:
+        raise ValueError(
+            f"Payload too long (max 4096 hex chars): {hex_or_url[:64]!r}..."
+        )
     raw = binascii.unhexlify(hex_str)
 
     if len(raw) < 6:

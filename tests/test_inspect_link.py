@@ -289,3 +289,51 @@ class TestChecksum:
             rarity=5,
         )
         assert serialize(data) == TOOL_HEX
+
+
+# ---------------------------------------------------------------------------
+# Defensive validation tests
+# ---------------------------------------------------------------------------
+
+class TestDefensiveChecks:
+    def test_deserialize_payload_too_long_raises(self):
+        """Payloads longer than 4096 hex chars must raise ValueError."""
+        long_hex = "00" * 2049  # 4098 hex chars > 4096 limit
+        with pytest.raises(ValueError, match="Payload too long"):
+            deserialize(long_hex)
+
+    def test_serialize_paintwear_above_one_raises(self):
+        """paintwear > 1.0 must raise ValueError."""
+        data = ItemPreviewData(defindex=7, paintwear=1.1)
+        with pytest.raises(ValueError, match="paintwear"):
+            serialize(data)
+
+    def test_serialize_paintwear_below_zero_raises(self):
+        """paintwear < 0.0 must raise ValueError."""
+        data = ItemPreviewData(defindex=7, paintwear=-0.1)
+        with pytest.raises(ValueError, match="paintwear"):
+            serialize(data)
+
+    def test_serialize_paintwear_zero_is_valid(self):
+        """paintwear == 0.0 is a valid boundary value."""
+        data = ItemPreviewData(defindex=7, paintwear=0.0)
+        result = serialize(data)
+        assert result.startswith("00")
+
+    def test_serialize_paintwear_one_is_valid(self):
+        """paintwear == 1.0 is a valid boundary value."""
+        data = ItemPreviewData(defindex=7, paintwear=1.0)
+        result = serialize(data)
+        assert result.startswith("00")
+
+    def test_serialize_customname_101_chars_raises(self):
+        """customname exceeding 100 characters must raise ValueError."""
+        data = ItemPreviewData(defindex=7, customname="x" * 101)
+        with pytest.raises(ValueError, match="customname"):
+            serialize(data)
+
+    def test_serialize_customname_100_chars_is_valid(self):
+        """customname of exactly 100 characters must be accepted."""
+        data = ItemPreviewData(defindex=7, customname="x" * 100)
+        result = serialize(data)
+        assert result.startswith("00")
