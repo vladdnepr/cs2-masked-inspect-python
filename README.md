@@ -98,6 +98,24 @@ is_classic(classic_url) # True
 
 ---
 
+## Validation rules
+
+`deserialize()` enforces:
+
+| Rule | Limit | Exception |
+|------|-------|-----------|
+| Hex payload length | max 4,096 characters | `ValueError` |
+| Protobuf field count | max 100 per message | `ValueError` |
+
+`serialize()` enforces:
+
+| Field | Constraint | Exception |
+|-------|-----------|-----------|
+| `paintwear` | `[0.0, 1.0]` | `ValueError` |
+| `customname` | max 100 characters | `ValueError` |
+
+---
+
 ## How the format works
 
 Three URL formats are handled:
