@@ -337,3 +337,74 @@ class TestDefensiveChecks:
         data = ItemPreviewData(defindex=7, customname="x" * 100)
         result = serialize(data)
         assert result.startswith("00")
+
+
+# -------------------------------------------------------------------------
+# CSFloat / gen.test.ts test vectors
+# -------------------------------------------------------------------------
+
+CSFLOAT_A = "00180720DA03280638FBEE88F90340B2026BC03C96"
+CSFLOAT_B = "00180720C80A280638A4E1F5FB03409A0562040800104C62040801104C62040802104C62040803104C6D4F5E30"
+CSFLOAT_C = "A2B2A2BA69A882A28AA192AECAA2D2B700A3A5AAA2B286FA7BA0D684BE72"
+
+
+class TestCsfloatVectors:
+    def test_vector_a_defindex(self):
+        assert deserialize(CSFLOAT_A).defindex == 7
+
+    def test_vector_a_paintindex(self):
+        assert deserialize(CSFLOAT_A).paintindex == 474
+
+    def test_vector_a_paintseed(self):
+        assert deserialize(CSFLOAT_A).paintseed == 306
+
+    def test_vector_a_rarity(self):
+        assert deserialize(CSFLOAT_A).rarity == 6
+
+    def test_vector_a_paintwear_not_none(self):
+        assert deserialize(CSFLOAT_A).paintwear is not None
+
+    def test_vector_a_paintwear(self):
+        assert abs(deserialize(CSFLOAT_A).paintwear - 0.6337) < 0.001
+
+    def test_vector_b_sticker_count(self):
+        assert len(deserialize(CSFLOAT_B).stickers) == 4
+
+    def test_vector_b_sticker_ids(self):
+        for s in deserialize(CSFLOAT_B).stickers:
+            assert s.sticker_id == 76
+
+    def test_vector_b_paintindex(self):
+        assert deserialize(CSFLOAT_B).paintindex == 1352
+
+    def test_vector_b_paintwear(self):
+        assert abs(deserialize(CSFLOAT_B).paintwear - 0.99) < 0.01
+
+    def test_vector_c_defindex(self):
+        assert deserialize(CSFLOAT_C).defindex == 1355
+
+    def test_vector_c_quality(self):
+        assert deserialize(CSFLOAT_C).quality == 12
+
+    def test_vector_c_keychain_count(self):
+        assert len(deserialize(CSFLOAT_C).keychains) == 1
+
+    def test_vector_c_keychain_highlight_reel(self):
+        assert deserialize(CSFLOAT_C).keychains[0].highlight_reel == 345
+
+    def test_vector_c_no_paintwear(self):
+        assert deserialize(CSFLOAT_C).paintwear is None
+
+
+class TestRoundtripNewFeatures:
+    def test_highlight_reel_roundtrip(self):
+        from cs2_inspect.models import Sticker as StickerModel
+        data = ItemPreviewData(defindex=7, keychains=[StickerModel(slot=0, sticker_id=36, highlight_reel=345)])
+        result = deserialize(serialize(data))
+        assert len(result.keychains) == 1
+        assert result.keychains[0].highlight_reel == 345
+
+    def test_null_paintwear_roundtrip(self):
+        data = ItemPreviewData(defindex=7, paintwear=None)
+        result = deserialize(serialize(data))
+        assert result.paintwear is None

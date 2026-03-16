@@ -24,6 +24,7 @@ class Sticker:
     offset_y: Optional[float] = None
     offset_z: Optional[float] = None
     pattern: int = 0
+    highlight_reel: Optional[int] = None
 
 
 @dataclass
@@ -43,7 +44,7 @@ class ItemPreviewData:
     paintindex: int = 0
     rarity: int = 0
     quality: int = 0
-    paintwear: float = 0.0
+    paintwear: Optional[float] = None
     paintseed: int = 0
     killeaterscoretype: int = 0
     killeatervalue: int = 0

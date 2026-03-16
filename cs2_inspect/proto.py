@@ -211,6 +211,8 @@ def encode_sticker(s: "Sticker") -> bytes:  # noqa: F821  (forward ref ok)
     if s.offset_z is not None:
         w.write_float32_fixed(9, s.offset_z)
     w.write_uint32(10, s.pattern)
+    if s.highlight_reel is not None:
+        w.write_uint32(11, s.highlight_reel)
     return w.to_bytes()
 
 
@@ -239,6 +241,8 @@ def decode_sticker(data: bytes) -> "Sticker":  # noqa: F821
             s.offset_z = struct.unpack("<f", value)[0]
         elif field_num == 10:
             s.pattern = value
+        elif field_num == 11:
+            s.highlight_reel = value
     return s
 
 
@@ -252,8 +256,9 @@ def encode_item(item: "ItemPreviewData") -> bytes:  # noqa: F821
     w.write_uint32(5, item.rarity)
     w.write_uint32(6, item.quality)
     # paintwear: float32 reinterpreted as uint32 varint
-    pw_uint32 = float32_to_uint32(item.paintwear)
-    w.write_uint32(7, pw_uint32)
+    if item.paintwear is not None:
+        pw_uint32 = float32_to_uint32(item.paintwear)
+        w.write_uint32(7, pw_uint32)
     w.write_uint32(8, item.paintseed)
     w.write_uint32(9, item.killeaterscoretype)
     w.write_uint32(10, item.killeatervalue)

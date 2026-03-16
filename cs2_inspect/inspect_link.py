@@ -106,7 +106,7 @@ def serialize(data: ItemPreviewData) -> str:
     Returns:
         Uppercase hex string, e.g. "00183C20B803..."
     """
-    if data.paintwear < 0.0 or data.paintwear > 1.0:
+    if data.paintwear is not None and (data.paintwear < 0.0 or data.paintwear > 1.0):
         raise ValueError(
             f"paintwear must be in [0.0, 1.0], got {data.paintwear}"
         )
