@@ -73,6 +73,42 @@ decoded = deserialize(hex_str)  # round-trip
 
 ---
 
+## Gen codes
+
+Generate a Steam inspect URL from item parameters (defindex, paintindex, paintseed, paintwear):
+
+```python
+from cs2_inspect import generate, to_gen_code, parse_gen_code, ItemPreviewData, Sticker
+
+# Generate a Steam inspect URL from item parameters
+url = generate(7, 474, 306, 0.22540508)
+# steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20...
+
+# Convert ItemPreviewData to a gen code string
+item = ItemPreviewData(defindex=7, paintindex=474, paintseed=306, paintwear=0.22540508)
+code = to_gen_code(item)          # "!gen 7 474 306 0.22540508"
+code = to_gen_code(item, "!g")    # "!g 7 474 306 0.22540508"
+
+# With stickers (slot index 0–4, padded to 5 pairs) and keychain
+item2 = ItemPreviewData(
+    defindex=7, paintindex=941, paintseed=2, paintwear=0.22540508,
+    stickers=[Sticker(slot=2, sticker_id=7203, wear=0.0)],
+    keychains=[Sticker(slot=0, sticker_id=36, wear=0.0)],
+)
+to_gen_code(item2, "!g")
+# "!g 7 941 2 0.22540508 0 0 0 0 7203 0 0 0 0 0 36 0"
+
+# Parse a gen code back to ItemPreviewData
+item3 = parse_gen_code("!gen 7 474 306 0.22540508")
+
+# Convert an existing inspect link directly to a gen code
+from cs2_inspect import gen_code_from_link
+code = gen_code_from_link("steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20001A...")
+# "!gen 7 474 306 0.22540508"
+```
+
+---
+
 ## Validation
 
 Use `is_masked()` and `is_classic()` to detect the link type without decoding it.
