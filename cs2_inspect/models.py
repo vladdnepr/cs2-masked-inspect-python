@@ -25,6 +25,7 @@ class Sticker:
     offset_z: Optional[float] = None
     pattern: int = 0
     highlight_reel: Optional[int] = None
+    paint_kit: Optional[int] = None
 
 
 @dataclass

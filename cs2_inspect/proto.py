@@ -213,6 +213,8 @@ def encode_sticker(s: "Sticker") -> bytes:  # noqa: F821  (forward ref ok)
     w.write_uint32(10, s.pattern)
     if s.highlight_reel is not None:
         w.write_uint32(11, s.highlight_reel)
+    if s.paint_kit is not None:
+        w.write_uint32(12, s.paint_kit)
     return w.to_bytes()
 
 
@@ -243,6 +245,8 @@ def decode_sticker(data: bytes) -> "Sticker":  # noqa: F821
             s.pattern = value
         elif field_num == 11:
             s.highlight_reel = value
+        elif field_num == 12:
+            s.paint_kit = value
     return s
 
 

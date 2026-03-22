@@ -408,3 +408,72 @@ class TestRoundtripNewFeatures:
         data = ItemPreviewData(defindex=7, paintwear=None)
         result = deserialize(serialize(data))
         assert result.paintwear is None
+
+
+# ---------------------------------------------------------------------------
+# Sticker Slab test vectors (defIndex=1355, quality=8, slab variant via paint_kit)
+# ---------------------------------------------------------------------------
+
+# URL A — rarity=5, keychains[0].sticker_id=37, keychains[0].paint_kit=7256
+SLAB_URL_A = (
+    'steam://run/730//+csgo_econ_action_preview%20'
+    '918191895A9BB191B994A199F991E191339096999181B4F149A98D5C0889'
+)
+
+# URL B — rarity=3, keychains[0].sticker_id=37, keychains[0].paint_kit=275
+SLAB_URL_B = (
+    'steam://run/730//+csgo_econ_action_preview%20'
+    'CBDBCBD300C1EBCBE3C8FBC3A3CBBBCB69CACCC3CBDBEEAB58C9B8B67C83'
+)
+
+
+class TestStickerSlabVectors:
+    def test_slab_a_defindex(self):
+        assert deserialize(SLAB_URL_A).defindex == 1355
+
+    def test_slab_a_quality(self):
+        assert deserialize(SLAB_URL_A).quality == 8
+
+    def test_slab_a_rarity(self):
+        assert deserialize(SLAB_URL_A).rarity == 5
+
+    def test_slab_a_keychain_sticker_id(self):
+        keychains = deserialize(SLAB_URL_A).keychains
+        assert len(keychains) == 1
+        assert keychains[0].sticker_id == 37
+
+    def test_slab_a_keychain_paint_kit(self):
+        keychains = deserialize(SLAB_URL_A).keychains
+        assert len(keychains) == 1
+        assert keychains[0].paint_kit == 7256
+
+    def test_slab_b_defindex(self):
+        assert deserialize(SLAB_URL_B).defindex == 1355
+
+    def test_slab_b_quality(self):
+        assert deserialize(SLAB_URL_B).quality == 8
+
+    def test_slab_b_rarity(self):
+        assert deserialize(SLAB_URL_B).rarity == 3
+
+    def test_slab_b_keychain_sticker_id(self):
+        keychains = deserialize(SLAB_URL_B).keychains
+        assert len(keychains) == 1
+        assert keychains[0].sticker_id == 37
+
+    def test_slab_b_keychain_paint_kit(self):
+        keychains = deserialize(SLAB_URL_B).keychains
+        assert len(keychains) == 1
+        assert keychains[0].paint_kit == 275
+
+    def test_paint_kit_roundtrip(self):
+        data = ItemPreviewData(
+            defindex=1355,
+            quality=8,
+            rarity=5,
+            keychains=[Sticker(slot=0, sticker_id=37, paint_kit=7256)],
+        )
+        result = deserialize(serialize(data))
+        assert len(result.keychains) == 1
+        assert result.keychains[0].sticker_id == 37
+        assert result.keychains[0].paint_kit == 7256
