@@ -15,5 +15,10 @@ Usage:
 
 from .inspect_link import deserialize, is_classic, is_masked, serialize
 from .models import ItemPreviewData, Sticker
+from .gen_codes import generate, gen_code_from_link, to_gen_code, parse_gen_code
 
-__all__ = ["serialize", "deserialize", "is_masked", "is_classic", "ItemPreviewData", "Sticker"]
+__all__ = [
+    "serialize", "deserialize", "is_masked", "is_classic",
+    "ItemPreviewData", "Sticker",
+    "generate", "gen_code_from_link", "to_gen_code", "parse_gen_code",
+]

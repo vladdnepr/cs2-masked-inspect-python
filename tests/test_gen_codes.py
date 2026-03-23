@@ -44,6 +44,27 @@ class TestToGenCode:
         code = to_gen_code(item)
         assert code == "!gen 7 474 306 0"
 
+    def test_keychain_with_paint_kit_appends_paint_kit(self):
+        item = ItemPreviewData(
+            defindex=1355, paintindex=0, paintseed=0, paintwear=0.0,
+            keychains=[Sticker(slot=0, sticker_id=37, wear=0.0, paint_kit=929)],
+        )
+        code = to_gen_code(item, prefix="")
+        tokens = code.split()
+        assert tokens[-3] == "37"
+        assert tokens[-2] == "0"
+        assert tokens[-1] == "929"
+
+    def test_keychain_without_paint_kit_no_extra_token(self):
+        item = ItemPreviewData(
+            defindex=7, paintindex=0, paintseed=0, paintwear=0.0,
+            keychains=[Sticker(slot=0, sticker_id=36, wear=0.0)],
+        )
+        code = to_gen_code(item, prefix="")
+        tokens = code.split()
+        assert tokens[-2] == "36"
+        assert tokens[-1] == "0"
+
 
 class TestParseGenCode:
     def test_basic_parse(self):
@@ -69,6 +90,17 @@ class TestParseGenCode:
         assert item.stickers[0].sticker_id == 7203
         assert len(item.keychains) == 1
         assert item.keychains[0].sticker_id == 36
+
+
+class TestGenCodeFromLinkSlab:
+    def test_mousesports_slab_url_ends_with_paint_kit(self):
+        from cs2_inspect import gen_code_from_link
+        slab_url = "steam://run/730//+csgo_econ_action_preview%20819181994A8BA181A982B189E981F181238086898191A4E1208698F309C9"
+        code = gen_code_from_link(slab_url, prefix="")
+        tokens = code.split()
+        assert tokens[-3] == "37"
+        assert tokens[-2] == "0"
+        assert tokens[-1] == "929"
 
 
 class TestGenCodeFromLink:

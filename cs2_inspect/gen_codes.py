@@ -41,6 +41,8 @@ def _serialize_sticker_pairs(stickers: list[Sticker], pad_to: Optional[int] = No
         for s in sorted(filtered, key=lambda x: x.slot):
             result.append(str(s.sticker_id))
             result.append(_format_float(float(s.wear) if s.wear is not None else 0.0))
+            if s.paint_kit is not None:
+                result.append(str(s.paint_kit))
 
     return result
 
