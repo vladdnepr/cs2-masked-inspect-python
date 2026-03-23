@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vlydev-cs2-masked-inspect"
-version = "1.1.1"
+version = "1.1.2"
 description = "Encode and decode CS2 masked inspect links"
 readme = "README.md"
 requires-python = ">=3.9"
