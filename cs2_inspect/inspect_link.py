@@ -43,7 +43,7 @@ _CLASSIC_URL_RE = re.compile(
 )
 
 _MASKED_URL_RE = re.compile(
-    r'csgo_econ_action_preview(?:%20|\s)[0-9A-Fa-f]{10,}$',
+    r'csgo_econ_action_preview(?:%20|\s)%?[0-9A-Fa-f]{10,}$',
     re.IGNORECASE,
 )
 
@@ -66,7 +66,7 @@ def _extract_hex(hex_or_url: str) -> str:
 
     # Pure masked format: csgo_econ_action_preview%20<hexblob> (no S/A/M prefix).
     # Also handles payloads whose first hex character happens to be A.
-    mm = re.search(r'csgo_econ_action_preview(?:%20|\s|\+)([0-9A-Fa-f]{10,})$', stripped, re.IGNORECASE)
+    mm = re.search(r'csgo_econ_action_preview(?:%20|\s|\+)%?([0-9A-Fa-f]{10,})$', stripped, re.IGNORECASE)
     if mm:
         return mm.group(1)
 
