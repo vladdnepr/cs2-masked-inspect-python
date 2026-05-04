@@ -13,6 +13,7 @@ Usage:
     hex_str = serialize(data)  # "00183C20B803..."
 """
 
+from .exceptions import MalformedInspectLinkError
 from .inspect_link import deserialize, is_classic, is_masked, serialize
 from .models import ItemPreviewData, Sticker
 from .gen_codes import generate, gen_code_from_link, to_gen_code, parse_gen_code
@@ -20,5 +21,6 @@ from .gen_codes import generate, gen_code_from_link, to_gen_code, parse_gen_code
 __all__ = [
     "serialize", "deserialize", "is_masked", "is_classic",
     "ItemPreviewData", "Sticker",
+    "MalformedInspectLinkError",
     "generate", "gen_code_from_link", "to_gen_code", "parse_gen_code",
 ]

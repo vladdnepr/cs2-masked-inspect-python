@@ -20,8 +20,16 @@ import struct
 import zlib
 from typing import Union
 
+from .exceptions import MalformedInspectLinkError
 from .models import ItemPreviewData
 from .proto import decode_item, encode_item
+
+
+_HEX_RE = re.compile(r"^[0-9A-Fa-f]+$")
+
+
+def _abbreviate(s: str) -> str:
+    return s if len(s) <= 120 else s[:100] + "..."
 
 
 # Regex to extract the hex payload from a full steam:// or CS2 inspect URL.
@@ -134,13 +142,35 @@ def deserialize(hex_or_url: str) -> ItemPreviewData:
     """
     hex_str = _extract_hex(hex_or_url)
     if len(hex_str) > 4096:
-        raise ValueError(
-            f"Payload too long (max 4096 hex chars): {hex_or_url[:64]!r}..."
+        raise MalformedInspectLinkError(
+            f"Malformed inspect URL: payload too long (max 4096 hex chars). "
+            f'Input: "{_abbreviate(hex_or_url)}"'
         )
+
+    # Reject malformed hex BEFORE binascii.unhexlify: validate up-front so
+    # callers always get one consistent MalformedInspectLinkError instead of
+    # a binascii.Error (which leaks the implementation) or — worse — silent
+    # decoding of garbage. See docstring for the underlying issue: real-world
+    # URLs from a buggy upstream source arrive odd-length and truncated.
+    if len(hex_str) == 0 or len(hex_str) % 2 != 0:
+        raise MalformedInspectLinkError(
+            f"Malformed inspect URL: hex payload has invalid length "
+            f"({len(hex_str)} chars, must be even and non-empty). "
+            f'The source likely truncated the URL. Input: "{_abbreviate(hex_or_url)}"'
+        )
+    if not _HEX_RE.match(hex_str):
+        raise MalformedInspectLinkError(
+            f"Malformed inspect URL: payload contains non-hex characters. "
+            f'Input: "{_abbreviate(hex_or_url)}"'
+        )
+
     raw = binascii.unhexlify(hex_str)
 
     if len(raw) < 6:
-        raise ValueError(f"Payload too short: {len(raw)} bytes")
+        raise MalformedInspectLinkError(
+            f"Malformed inspect URL: payload too short ({len(raw)} bytes, need >=6). "
+            f'Input: "{_abbreviate(hex_or_url)}"'
+        )
 
     key = raw[0]
 
@@ -153,4 +183,10 @@ def deserialize(hex_or_url: str) -> ItemPreviewData:
     # Layout: [key] [proto_bytes...] [4-byte checksum]
     proto_bytes = decrypted[1:-4]
 
-    return decode_item(proto_bytes)
+    try:
+        return decode_item(proto_bytes)
+    except Exception as e:
+        raise MalformedInspectLinkError(
+            f"Malformed inspect URL: protobuf decode failed ({e}). "
+            f'Payload likely corrupted or truncated. Input: "{_abbreviate(hex_or_url)}"'
+        ) from e
